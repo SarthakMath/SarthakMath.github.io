@@ -1,15 +1,15 @@
 /* Sarthak Sourav Dash — personal site
-   Palette: black with earth pigments. Type: STIX Two Text, the face of mathematics journals. */
+   Palette: slate ink on ivory with a deep wine accent. Type: STIX Two Text, the face of mathematics journals. */
 @import url('https://fonts.googleapis.com/css2?family=STIX+Two+Text:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap');
 
 :root {
-  --black: #070605;      /* page */
-  --loam: #15110d;       /* raised surfaces, image slots */
-  --umber: #3b2f23;      /* rules and frames */
-  --dust: #a2947f;       /* secondary text */
-  --chalk: #ece4d3;      /* primary text */
-  --ochre: #d0a04c;      /* links, emphasis */
-  --laterite: #b4552f;   /* rare second accent */
+  --black: #fcfaf5;      /* page background: ivory */
+  --loam: #f3efe6;       /* image slots, raised surfaces */
+  --umber: #ddd6c8;      /* rules and frames */
+  --dust: #62605a;       /* secondary text */
+  --chalk: #141a21;      /* primary text */
+  --ochre: #6b1d2a;      /* deep wine: links, buttons, emphasis */
+  --laterite: #1f4b6e;   /* draft-note bar */
   --serif: 'STIX Two Text', 'STIX Two Math', 'Cambria', 'Times New Roman', serif;
   --margin-col: 11rem;
   --measure: 40rem;
@@ -65,7 +65,7 @@ em, i, .math { font-style: italic; }
 .entry p:last-child { margin-bottom: 0; }
 
 .plain { list-style: none; margin: 0; padding: 0; }
-.plain li { padding: 0.55rem 0; border-bottom: 1px solid #1f1913; display: flex; justify-content: space-between; gap: 1.5rem; align-items: baseline; }
+.plain li { padding: 0.55rem 0; border-bottom: 1px solid #ebe5da; display: flex; justify-content: space-between; gap: 1.5rem; align-items: baseline; }
 .plain li:first-child { padding-top: 0; }
 .plain li:last-child { border-bottom: 0; }
 .plain .when { color: var(--dust); font-size: 0.9rem; white-space: nowrap; text-align: right; font-feature-settings: 'lnum' 1; }
@@ -114,7 +114,7 @@ em, i, .math { font-style: italic; }
 .gallery figure { margin: 0; }
 .gallery figcaption { color: var(--dust); font-size: 0.88rem; padding-top: 0.45rem; line-height: 1.4; }
 dialog.lightbox { background: var(--black); color: var(--chalk); border: 1px solid var(--umber); padding: 1rem; max-width: min(92vw, 70rem); }
-dialog.lightbox::backdrop { background: rgba(0, 0, 0, 0.88); }
+dialog.lightbox::backdrop { background: rgba(20, 26, 33, 0.72); }
 dialog.lightbox img { max-height: 78vh; margin: 0 auto; }
 dialog.lightbox p { margin: 0.8rem 0 0; color: var(--dust); font-size: 0.92rem; display: flex; justify-content: space-between; gap: 1rem; }
 dialog.lightbox button { background: none; border: 0; color: var(--ochre); font: inherit; cursor: pointer; padding: 0; }
