@@ -16,7 +16,7 @@
   // Grid graded towards 1 so the layers stay resolved.
   const s = Array.from({ length: N + 1 }, (_, i) => 1 - Math.pow(1 - i / N, 2.2));
   const X = new Float64Array(N + 1), u = new Float64Array((N + 1) * (N + 1));
-  const low = [92, 66, 44], high = [222, 174, 86];
+  const low = [200, 190, 175], high = [107, 29, 42];
 
   const epsOf = (t) => Math.exp(Math.log(EPS_MAX) + (Math.log(EPS_MIN) - Math.log(EPS_MAX)) * t);
   const tOf = (eps) => (Math.log(eps) - Math.log(EPS_MAX)) / (Math.log(EPS_MIN) - Math.log(EPS_MAX));
@@ -43,9 +43,9 @@
     ctx.clearRect(0, 0, w, w);
 
     // frame and axis labels
-    ctx.strokeStyle = '#3b2f23'; ctx.lineWidth = 1;
+    ctx.strokeStyle = '#ddd6c8'; ctx.lineWidth = 1;
     ctx.strokeRect(px(0) + 0.5, py(1) + 0.5, size - 1, size - 1);
-    ctx.fillStyle = '#a2947f'; ctx.font = "italic 13px 'STIX Two Text', serif";
+    ctx.fillStyle = '#5f6874'; ctx.font = "italic 13px 'STIX Two Text', serif";
     ctx.textBaseline = 'top'; ctx.textAlign = 'left'; ctx.fillText('0', px(0) - 14, py(0) + 3);
     ctx.textAlign = 'right'; ctx.fillText('x = 1', px(1), py(0) + 4);
     ctx.save(); ctx.translate(px(0) - 18, py(1)); ctx.rotate(-Math.PI / 2); ctx.fillText('y = 1', 0, 0); ctx.restore();
