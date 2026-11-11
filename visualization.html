@@ -4,11 +4,11 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Math visualization | Sarthak Sourav Dash</title>
-  <meta name="description" content="Interactive mathematics by Sarthak Sourav Dash, including a browser-based finite element lab for convection–diffusion–reaction equations.">
+  <meta name="description" content="Interactive mathematics by Sarthak Sourav Dash: a browser-based finite element lab for convection–diffusion–reaction equations, and Converge, an interactive numerical analysis course.">
   <meta name="author" content="Sarthak Sourav Dash">
   <meta name="theme-color" content="#fcfaf5">
   <meta property="og:title" content="Math visualization | Sarthak Sourav Dash">
-  <meta property="og:description" content="Interactive mathematics by Sarthak Sourav Dash, including a browser-based finite element lab for convection–diffusion–reaction equations.">
+  <meta property="og:description" content="Interactive mathematics by Sarthak Sourav Dash: a browser-based finite element lab for convection–diffusion–reaction equations, and Converge, an interactive numerical analysis course.">
   <meta property="og:type" content="website">
   <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -27,15 +27,19 @@
     <section class="section wide">
       <h2>Finite elements</h2>
       <div class="body">
-        <article class="entry">
+        <article class="entry project">
           <h3><a href="https://sarthakmath.github.io/CDR_visualizer/">CDR FEM FCT lab</a></h3>
           <p class="meta">A finite element solver for convection–diffusion–reaction problems on a triangulated unit square.</p>
-          <a class="shot" href="https://sarthakmath.github.io/CDR_visualizer/"><img src="assets/img/cdr-lab.png" width="1440" height="900" alt="Screenshot of the CDR FEM FCT lab: experiment controls on the left, the equation and a 3D plot of the finite element solution on the right"></a>
-          <div style="max-width: var(--measure); margin-top: 1.4rem">
+          <a class="shot" href="https://sarthakmath.github.io/CDR_visualizer/"><img src="assets/img/cdr-surface.webp" width="1600" height="914" loading="lazy" alt="The lab’s solution plot: a 3D surface of the algebraic flux correction solution rising towards a sharp boundary layer at x = 1, coloured from blue at zero to red at its maximum"></a>
+          <figure class="plate">
+            <img src="assets/img/cdr-cross-section.webp" width="1128" height="712" loading="lazy" alt="Cross-section at y = 0.5 comparing two methods. The Galerkin solution in orange oscillates with growing amplitude near x = 1, while the BJK AFC solution in teal follows the exact solution without oscillating.">
+            <figcaption><b>Why stabilisation matters.</b> A cut through the same problem at <span class="math">y = 0.5</span>. Plain Galerkin (orange) oscillates as it approaches the layer; algebraic flux correction with the BJK limiter (teal) stays within the bounds of the exact solution.</figcaption>
+          </figure>
+          <div class="text">
             <p>Choose an equation, refine the mesh, change a coefficient, and watch the discrete solution respond. The lab compares the Galerkin method with SUPG, isotropic artificial diffusion, algebraic flux correction with the BJK limiter, and flux-corrected transport for time-dependent problems. You can inspect the linear system, export the data, and measure convergence rates.</p>
             <p>Three experiments to start with:</p>
             <ul class="plain">
-              <li><span>Outflow layer, BJK AFC<small>Steady convection–diffusion. See Galerkin oscillate at the layer and limited graph diffusion remove the oscillations.</small></span></li>
+              <li><span>Outflow layer, BJK AFC<small>Steady convection–diffusion. Turn on “Compare two methods” to reproduce the picture above.</small></span></li>
               <li><span>Affine preservation<small>Steady convection–diffusion on a shifted mesh. See how the limiter parameter μ decides whether an affine solution is reproduced exactly.</small></span></li>
               <li><span>Moving front<small>Transient transport. Compare low-order and flux-corrected schemes as a front crosses the domain.</small></span></li>
             </ul>
@@ -48,10 +52,21 @@
       </div>
     </section>
 
-    <section class="section">
-      <h2>Coming next</h2>
+    <section class="section wide">
+      <h2>Teaching</h2>
       <div class="body">
-        <p class="draft">Add your next visualization here: copy the article above, change the title, text, link and screenshot.</p>
+        <article class="entry project">
+          <h3><a href="converge/">Converge</a></h3>
+          <p class="meta">An interactive first course in numerical analysis, in six chapters.</p>
+          <a class="shot" href="converge/"><img src="assets/img/converge-runge.webp" width="1600" height="924" loading="lazy" alt="A Converge experiment on Runge’s function: the degree-8 polynomial through nine equally spaced nodes swings far below the original function near both ends of the interval"></a>
+          <div class="text">
+            <p>Each chapter pairs a short lesson with an experiment you can change: errors and convergence, root finding with bisection, Newton and secant, Jacobi iteration for linear systems, polynomial interpolation on equally spaced and Chebyshev nodes, the trapezoidal and Simpson rules, and Euler and Heun methods for differential equations. Every chapter ends with a worked example and a question to check your understanding.</p>
+            <p>The picture shows Runge’s phenomenon: the interpolating polynomial through equally spaced nodes swings wildly near the ends. Switch to Chebyshev nodes in the lesson and the swings disappear.</p>
+            <ul class="links">
+              <li><a class="button solid" href="converge/">Open the course</a></li>
+            </ul>
+          </div>
+        </article>
       </div>
     </section>
   </main>
