@@ -39,6 +39,7 @@ https://sarthakmath.github.io/CDR_visualizer/ and the two read as one site.
 | Page text | the `.html` file of that page |
 | Gallery photos | add files to `assets/img/gallery/`, list them in `assets/js/gallery-data.js` |
 | Home page figure | `assets/js/layers.js` |
+| Converge course | `converge/` (its own `index.html`, `style.css`, `app.js`; served at /converge/) |
 
 ## Pictures to add
 
