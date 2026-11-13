@@ -1,5 +1,18 @@
-// Shared header, footer and image slots for every page.
-// Edit SITE once and every page updates.
+// =====================================================================
+// SITE SETTINGS: shared by every page.
+// The top bar (your name + menu) and the footer are built from SITE
+// below, so change something here once and every page updates.
+//
+//   name      shown at the top left and in the footer
+//   email     footer link (the "Email me" button is in index.html)
+//   logo      leave '' for no logo; set e.g. 'assets/img/logo.svg'
+//   github, arxiv, linkedin   footer links ('' hides LinkedIn)
+//   updated   the "Updated ..." text in the footer
+//   pages     the menu, in order: [id, label shown, file]
+//             To add a page: copy personal.html to a new file, change its
+//             <body data-page="..."> to a new id, and add a line here.
+// You should not need to edit anything below the SITE block.
+// =====================================================================
 const SITE = {
   name: 'Sarthak Sourav Dash',
   email: 'sarthak.dash@iitgn.ac.in',
@@ -19,6 +32,7 @@ const SITE = {
   ],
 };
 
+// ---- Builds the top bar, footer and photo placeholders (no need to edit) ----
 (function () {
   const current = document.body.dataset.page;
   const nav = SITE.pages

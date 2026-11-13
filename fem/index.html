@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>From PDE to matrix | An interactive introduction to finite elements</title>
+  <meta name="description" content="How the finite element method turns a differential equation into a linear system: weak form, hat functions, element matrices and assembly, with figures you can drag and step through.">
+  <meta name="author" content="Sarthak Sourav Dash">
+  <meta name="theme-color" content="#fcfaf5">
+  <link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- ===================================================================
+       FROM PDE TO MATRIX (fem/index.html)
+       All the words are in this file, chapter by chapter.
+       The live figures are drawn by app.js into the <svg> and <div> tags
+       with id="..." below; the mathematics is computed in fem1d.js.
+       To edit text: change the words here. Each chapter is one
+       <section class="chapter">. "For the experienced reader" boxes are
+       the <details class="deep"> blocks.
+       =================================================================== -->
+  <header class="top">
+    <a class="brand" href="#top">From PDE to matrix</a>
+    <a class="home" href="../">Sarthak Sourav Dash</a>
+  </header>
+
+  <div class="shell" id="top">
+    <!-- CHAPTER MENU (left on wide screens). One <li> per chapter; href matches the chapter's id. -->
+    <nav class="toc" aria-label="Chapters">
+      <ol>
+        <li><a href="#problem">The problem</a></li>
+        <li><a href="#weak">The weak form</a></li>
+        <li><a href="#hats">Hat functions</a></li>
+        <li><a href="#element">One element</a></li>
+        <li><a href="#assembly">Assembly</a></li>
+        <li><a href="#solve">Boundary conditions and solving</a></li>
+      </ol>
+    </nav>
+
+    <main>
+      <!-- INTRODUCTION -->
+      <section class="intro">
+        <h1>From PDE to matrix</h1>
+        <p class="lead">How the finite element method turns a differential equation into a linear system a computer can solve, one idea at a time.</p>
+        <p>Every figure on this page is live. Drag the handles, move the sliders and step through the assembly. Each chapter ends with a box for readers who already know the theory and want the precise statements.</p>
+      </section>
+
+      <!-- ================= CHAPTER 1 ================= -->
+      <section class="chapter" id="problem">
+        <h2><span class="n">1</span>The problem</h2>
+        <p>A thin metal rod has both ends held in ice. Along its length it is heated, more in some places than in others. Once everything has settled, what is the temperature at each point?</p>
+        <p>Call the heating rate <span class="math">f(x)</span> and the temperature <span class="math">u(x)</span>, with <span class="math">x</span> running from 0 to 1 along the rod. Physics gives one equation and two end conditions:</p>
+        <p class="eq">−u″(x) = f(x) &nbsp;for 0 &lt; x &lt; 1, &nbsp;&nbsp; u(0) = u(1) = 0.</p>
+        <p>The second derivative measures how sharply the temperature profile bends. The equation says the profile bends most where the heating is strongest. This is the simplest <em>elliptic</em> problem, and everything in this page generalises from it.</p>
+
+        <div class="lab">
+          <div class="controls">
+            <div class="seg" id="probSeg" role="group" aria-label="Heating pattern"></div>
+          </div>
+          <svg id="figProblem" role="img" aria-label="Top: the heating rate f along the rod. Bottom: the resulting temperature u, zero at both ends."></svg>
+          <p class="readout" id="outProblem"></p>
+        </div>
+
+        <p>For these three heating patterns the solution can be written down exactly, which makes them good test cases: we will always know the right answer. For most real problems nobody can write the solution down, and that is why a numerical method is needed. <strong>The pattern you pick here is used in every figure below.</strong></p>
+
+        <details class="deep">
+          <summary>For the experienced reader: classical and weak solutions</summary>
+          <p>For continuous <span class="math">f</span> the problem has a unique classical solution <span class="math">u ∈ C²</span>, given by the Green’s function: <span class="math">u(x) = ∫₀¹ G(x, s) f(s) ds</span> with <span class="math">G(x, s) = x(1 − s)</span> for <span class="math">x ≤ s</span> and <span class="math">s(1 − x)</span> otherwise. For <span class="math">f ∈ L²(0,1)</span> the equation holds almost everywhere with <span class="math">u ∈ H²(0,1) ∩ H¹₀(0,1)</span> and <span class="math">‖u″‖ = ‖f‖</span>. For rougher data, such as a point source, only the weak formulation of the next chapter makes sense.</p>
+        </details>
+      </section>
+
+      <!-- ================= CHAPTER 2 ================= -->
+      <section class="chapter" id="weak">
+        <h2><span class="n">2</span>The weak form</h2>
+        <p>A computer cannot store a function, only a finite list of numbers. So we will replace <span class="math">u</span> by something simple: a chain of straight segments. But a chain of segments has no second derivative at its joints, so the equation <span class="math">−u″ = f</span> cannot even be asked of it.</p>
+        <p>The way out is to stop demanding the equation at every point, and demand it <em>on average</em> instead, against a whole family of test functions. Multiply both sides by any function <span class="math">v</span> that vanishes at both ends, and integrate along the rod:</p>
+        <p class="eq">−∫₀¹ u″ v dx = ∫₀¹ f v dx.</p>
+        <p>Integrate the left side by parts. The boundary term <span class="math">u′v</span> disappears, because <span class="math">v(0) = v(1) = 0</span>:</p>
+        <p class="eq">∫₀¹ u′ v′ dx = ∫₀¹ f v dx &nbsp;&nbsp; for every such v.</p>
+        <p>One derivative has moved from <span class="math">u</span> onto <span class="math">v</span>. Only first derivatives appear now, and straight segments do have those.</p>
+
+        <div class="lab">
+          <div class="controls">
+            <div class="seg" id="vSeg" role="group" aria-label="Test function"></div>
+            <label class="slider" id="vcWrap">Centre <input type="range" id="vc" min="0.1" max="0.9" step="0.01"><output id="vcOut"></output></label>
+            <label class="slider" id="vwWrap">Half-width <input type="range" id="vw" min="0.05" max="0.5" step="0.01"><output id="vwOut"></output></label>
+            <label class="slider" id="vkWrap">Waves <input type="range" id="vk" min="1" max="5" step="1"><output id="vkOut"></output></label>
+          </div>
+          <svg id="figWeakTop" role="img" aria-label="The exact solution u and the chosen test function v."></svg>
+          <div class="pair">
+            <figure><svg id="figWeakL" role="img" aria-label="The integrand u prime times v prime, with its signed area shaded."></svg><figcaption id="capWeakL"></figcaption></figure>
+            <figure><svg id="figWeakR" role="img" aria-label="The integrand f times v, with its signed area shaded."></svg><figcaption id="capWeakR"></figcaption></figure>
+          </div>
+          <p class="readout" id="outWeak"></p>
+        </div>
+
+        <p>The two shaded regions look nothing alike, yet their areas agree for every test function you try. That is the weak form: infinitely many averaged statements instead of one statement per point. Now choose <em>v = x</em>, which does not vanish at the right end. The balance fails, and it fails by exactly the boundary term we dropped.</p>
+
+        <details class="deep">
+          <summary>For the experienced reader: the functional setting</summary>
+          <p>Take <span class="math">V = H¹₀(0,1)</span>, <span class="math">a(u, v) = ∫₀¹ u′v′ dx</span> and <span class="math">ℓ(v) = ∫₀¹ f v dx</span>. The form <span class="math">a</span> is bounded and, by the Poincaré inequality, coercive on <span class="math">V</span>, so the Lax–Milgram lemma gives a unique <span class="math">u ∈ V</span> with <span class="math">a(u, v) = ℓ(v)</span> for all <span class="math">v ∈ V</span>, for any <span class="math">f ∈ H⁻¹(0,1)</span>. Because <span class="math">a</span> is symmetric, <span class="math">u</span> is also the unique minimiser of the energy <span class="math">J(v) = ½ a(v, v) − ℓ(v)</span> over <span class="math">V</span>.</p>
+        </details>
+      </section>
+
+      <!-- ================= CHAPTER 3 ================= -->
+      <section class="chapter" id="hats">
+        <h2><span class="n">3</span>Hat functions</h2>
+        <p>Now make <span class="math">u</span> simple. Cut the rod at a few points, the <em>nodes</em>, and allow only functions that are straight between neighbouring nodes. Such a function is fixed by its heights at the nodes, so it really is a finite list of numbers. The pieces between nodes are the <em>elements</em>.</p>
+        <p>There is a tidy way to write these functions. For each node <span class="math">i</span>, let <span class="math">φ<sub>i</sub></span> be the “hat”: equal to 1 at node <span class="math">i</span>, equal to 0 at every other node, and straight in between. Then every chain of segments is a sum of hats,</p>
+        <p class="eq">u<sub>h</sub>(x) = U<sub>1</sub> φ<sub>1</sub>(x) + U<sub>2</sub> φ<sub>2</sub>(x) + … ,</p>
+        <p>and the coefficient <span class="math">U<sub>i</sub></span> is simply the height at node <span class="math">i</span>.</p>
+
+        <div class="lab">
+          <div class="controls">
+            <label class="slider">Elements <input type="range" id="hatN" min="2" max="8" step="1"><output id="hatNOut"></output></label>
+            <button type="button" class="btn" id="hatMatch">Match the exact solution at the nodes</button>
+            <button type="button" class="btn" id="hatEven">Even spacing</button>
+          </div>
+          <svg id="figHats" class="draggable" role="img" aria-label="A piecewise linear function shown as a sum of scaled hat functions. Round handles set the height at each node; diamonds on the axis move the nodes."></svg>
+          <p class="readout" id="outHats"></p>
+        </div>
+
+        <p>Drag a round handle up or down to change one coefficient. Only that hat stretches, and the function changes only in the two elements that touch the node. Drag a diamond on the axis to move a node sideways. The dashed curve is the exact solution, shown for comparison: the aim of the next three chapters is to find the heights that follow it, without knowing it in advance.</p>
+
+        <details class="deep">
+          <summary>For the experienced reader: the discrete space</summary>
+          <p>The hats at the interior nodes span <span class="math">V<sub>h</sub> ⊂ H¹₀(0,1)</span>, the conforming P1 space. For the nodal interpolant <span class="math">I<sub>h</sub>u</span> of <span class="math">u ∈ H²</span>, <span class="math">‖u − I<sub>h</sub>u‖ + h ‖(u − I<sub>h</sub>u)′‖ ≤ C h² ‖u″‖</span>, with <span class="math">h</span> the longest element. Each hat is supported on two elements only; this local support is what makes the matrix of chapter 5 sparse.</p>
+        </details>
+      </section>
+
+      <!-- ================= CHAPTER 4 ================= -->
+      <section class="chapter" id="element">
+        <h2><span class="n">4</span>One element</h2>
+        <p>Put <span class="math">u<sub>h</sub> = Σ U<sub>j</sub> φ<sub>j</sub></span> into the weak form, and test it with each hat in turn, <span class="math">v = φ<sub>i</sub></span>:</p>
+        <p class="eq">Σ<sub>j</sub> U<sub>j</sub> ∫₀¹ φ<sub>j</sub>′ φ<sub>i</sub>′ dx = ∫₀¹ f φ<sub>i</sub> dx &nbsp;&nbsp; for each i.</p>
+        <p>This is a linear system <span class="math">K U = F</span>, with <span class="math">K<sub>ij</sub> = ∫ φ<sub>i</sub>′ φ<sub>j</sub>′ dx</span> and <span class="math">F<sub>i</sub> = ∫ f φ<sub>i</sub> dx</span>. The unknowns are the heights <span class="math">U<sub>j</sub></span>.</p>
+        <p>An integral over the rod is a sum of integrals over the elements, and on any one element only two hats are non-zero: one falling from 1 to 0, one rising from 0 to 1. So all the work reduces to one small calculation per element. On an element of length <span class="math">h</span> the two slopes are <span class="math">−1/h</span> and <span class="math">+1/h</span>. They are constant, so each integral is just slope × slope × length.</p>
+
+        <div class="lab">
+          <div class="controls">
+            <label class="slider">Left end <input type="range" id="elA" min="0" max="0.9" step="0.01"><output id="elAOut"></output></label>
+            <label class="slider">Length h <input type="range" id="elH" min="0.05" max="1" step="0.01"><output id="elHOut"></output></label>
+          </div>
+          <svg id="figElement" role="img" aria-label="One element of the rod with its falling and rising hat pieces and their slopes."></svg>
+          <div class="matrow">
+            <div>
+              <p class="cap">Element matrix. Select an entry.</p>
+              <div class="mat" id="matKe" role="group" aria-label="Element stiffness matrix"></div>
+            </div>
+            <div>
+              <p class="cap">Element load</p>
+              <div class="mat vec" id="vecFe"></div>
+            </div>
+            <p class="explain" id="outElement"></p>
+          </div>
+        </div>
+
+        <p>Make the element shorter and the entries grow: a hat that climbs over a short distance is steep. Each row of the matrix adds up to zero, because the two hats add up to 1 on the element and a constant has zero slope. The load entries depend on where the element sits, since they sample the heating there.</p>
+
+        <details class="deep">
+          <summary>For the experienced reader: the element matrix</summary>
+          <p>Mapped from a reference element, <span class="math">K<sub>e</sub> = (1/h) [[1, −1], [−1, 1]]</span>. It is symmetric positive semidefinite with kernel spanned by <span class="math">(1, 1)</span>: before boundary conditions, <span class="math">a(·,·)</span> is only a seminorm. Zero row sums express the partition of unity. In two dimensions the same computation on a triangle gives the cotangent formula, and an off-diagonal entry is non-positive exactly when the two angles opposite the edge sum to at most <span class="math">π</span>. The load uses a three-point Gauss rule, exact for <span class="math">f</span> of degree up to four on each element.</p>
+        </details>
+      </section>
+
+      <!-- ================= CHAPTER 5 ================= -->
+      <section class="chapter" id="assembly">
+        <h2><span class="n">5</span>Assembly</h2>
+        <p>Each element produces a 2 × 2 matrix for its own two nodes. <em>Assembly</em> adds every one of them into the big matrix <span class="math">K</span>, at the rows and columns of those two nodes. Where two elements share a node, their contributions add up.</p>
+
+        <div class="lab">
+          <div class="controls">
+            <label class="slider">Elements <input type="range" id="asmN" min="2" max="6" step="1"><output id="asmNOut"></output></label>
+            <label class="check"><input type="checkbox" id="asmUneven"> Uneven mesh</label>
+          </div>
+          <svg id="figAssembly" role="img" aria-label="The mesh with the element currently being added highlighted."></svg>
+          <div class="controls steps">
+            <button type="button" class="btn" id="asmBack">Back</button>
+            <button type="button" class="btn solid" id="asmNext">Add next element</button>
+            <button type="button" class="btn" id="asmPlay">Play</button>
+            <button type="button" class="btn" id="asmReset">Start over</button>
+          </div>
+          <p class="readout" id="outAssembly" aria-live="polite"></p>
+          <div class="asm">
+            <div class="local">
+              <p class="cap" id="capLocal">Element matrix and load</p>
+              <div id="asmLocal"></div>
+            </div>
+            <div class="global">
+              <p class="cap">Global matrix K and load F. Rows and columns are numbered by node.</p>
+              <div class="scroll" id="asmGlobal"></div>
+            </div>
+          </div>
+        </div>
+
+        <p>Step through it. Element <span class="math">e</span> joins nodes <span class="math">e − 1</span> and <span class="math">e</span>, so its block lands on those two rows and columns. The diagonal entry of a shared node receives two contributions, one from the element on each side. Everything away from the diagonal stays empty: two hats that do not overlap never meet inside an integral.</p>
+        <p>In one dimension the result has three non-zero diagonals. In two and three dimensions the same process leaves a very large matrix that is almost entirely zeros, which is why finite elements scale to millions of unknowns.</p>
+
+        <details class="deep">
+          <summary>For the experienced reader: structure of K, and where it breaks</summary>
+          <p>Assembly is <span class="math">K = Σ<sub>e</sub> P<sub>e</sub>ᵀ K<sub>e</sub> P<sub>e</sub></span> with Boolean local-to-global maps <span class="math">P<sub>e</sub></span>; <span class="math">K</span> is the Gram matrix of the hats in the energy inner product. It has positive diagonal, non-positive off-diagonal entries and zero row sums. After the boundary conditions it is an irreducibly diagonally dominant Z-matrix, hence an M-matrix: <span class="math">K⁻¹ ≥ 0</span> entrywise. That is the discrete maximum principle: <span class="math">f ≥ 0</span> implies <span class="math">u<sub>h</sub> ≥ 0</span>.</p>
+          <p>Add a convection term, <span class="math">−εu″ + bu′ = f</span>, and the Galerkin off-diagonals become <span class="math">−ε/h ± b/2</span>. One of them turns positive as soon as the mesh Péclet number <span class="math">|b|h / (2ε)</span> exceeds 1, the M-matrix property is lost, and the discrete solution oscillates. Restoring the sign structure algebraically, without smearing the solution, is the idea behind algebraic flux correction. The <a href="https://sarthakmath.github.io/CDR_visualizer/">CDR lab</a> shows this in two dimensions.</p>
+        </details>
+      </section>
+
+      <!-- ================= CHAPTER 6 ================= -->
+      <section class="chapter" id="solve">
+        <h2><span class="n">6</span>Boundary conditions and solving</h2>
+        <p>As assembled, <span class="math">K U = F</span> does not yet have a unique solution: nothing in it says that the ends of the rod are held at zero. But that means the first and last heights are already known, <span class="math">U<sub>0</sub> = U<sub>N</sub> = 0</span>. Remove their rows and columns. What remains is a system for the interior heights only. Solve it and join the dots.</p>
+
+        <div class="lab">
+          <div class="controls">
+            <label class="slider">Elements <input type="range" id="solN" min="2" max="32" step="1"><output id="solNOut"></output></label>
+            <label class="check"><input type="checkbox" id="solUneven"> Uneven mesh</label>
+          </div>
+          <svg id="figSolve" role="img" aria-label="The finite element solution as a chain of segments, drawn over the dashed exact solution. The gap between them is shaded."></svg>
+          <p class="readout" id="outSolve" aria-live="polite"></p>
+          <div class="asm">
+            <div class="global wide">
+              <p class="cap" id="capSystem"></p>
+              <div class="scroll" id="solSystem"></div>
+            </div>
+            <div class="local">
+              <p class="cap">Halving the elements</p>
+              <div id="solTable"></div>
+            </div>
+          </div>
+        </div>
+
+        <p>Two things to notice. At the nodes, the computed heights sit on the exact curve; any difference comes only from integrating <span class="math">f</span> approximately. The error lives <em>between</em> the nodes, where a straight segment cannot follow a curve. And each time the number of elements doubles, that error falls by a factor of about 4.</p>
+
+        <details class="deep">
+          <summary>For the experienced reader: why the nodes are exact, and how fast it converges</summary>
+          <p>Galerkin orthogonality, <span class="math">a(u − u<sub>h</sub>, v<sub>h</sub>) = 0</span> for all <span class="math">v<sub>h</sub> ∈ V<sub>h</sub></span>, makes <span class="math">u<sub>h</sub></span> the best approximation of <span class="math">u</span> in the energy norm (Céa’s lemma, with constant 1 here). In one dimension the Green’s function <span class="math">G(x<sub>i</sub>, ·)</span> is piecewise linear with its kink at the node <span class="math">x<sub>i</sub></span>, so it lies in <span class="math">V<sub>h</sub></span>, and <span class="math">u(x<sub>i</sub>) − u<sub>h</sub>(x<sub>i</sub>) = a(u − u<sub>h</sub>, G(x<sub>i</sub>, ·)) = 0</span>. With exact load integrals <span class="math">u<sub>h</sub></span> is therefore the nodal interpolant of <span class="math">u</span>. This is special to one dimension and constant coefficients.</p>
+          <p>In general, <span class="math">‖(u − u<sub>h</sub>)′‖ ≤ C h ‖u″‖</span> and, by the Aubin–Nitsche duality argument, <span class="math">‖u − u<sub>h</sub>‖ ≤ C h² ‖u″‖</span>. The condition number of the reduced <span class="math">K</span> grows like <span class="math">h⁻²</span>, which is what makes large problems hard to solve iteratively without preconditioning.</p>
+        </details>
+      </section>
+
+      <!-- WHAT COMES NEXT -->
+      <section class="chapter next" id="next">
+        <h2>Where this goes next</h2>
+        <p>The same six steps carry over unchanged to two and three dimensions: intervals become triangles or tetrahedra, hats become pyramids, and the element matrix becomes 3 × 3 or 4 × 4. Chapters on triangles, sparsity patterns and convergence in two dimensions are planned.</p>
+        <ul>
+          <li>See the method fail and get repaired on convection-dominated problems in the <a href="https://sarthakmath.github.io/CDR_visualizer/">CDR FEM FCT lab</a>.</li>
+          <li>For the numerical methods used along the way (quadrature, linear systems, interpolation), try <a href="../converge/">Converge</a>.</li>
+        </ul>
+        <p class="by">Written and built by <a href="../">Sarthak Sourav Dash</a>.</p>
+      </section>
+    </main>
+  </div>
+
+  <script src="fem1d.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

@@ -11,8 +11,16 @@
   const toggle = document.getElementById('epsToggle');
   const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+  // ---- SETTINGS YOU MAY WANT TO CHANGE ---------------------------------
+  //   LEVELS            number of contour lines
+  //   EPS_MAX, EPS_MIN  the slider runs from EPS_MAX (left) to EPS_MIN (right)
+  //   low, high         contour colours as [red, green, blue], faint to strong
+  //   SECONDS_PER_CYCLE how long one sweep of the animation takes
+  // The frame and axis-label colours are set in draw(): '#ddd6c8' and '#5f6874'.
+  // ----------------------------------------------------------------------
   const N = 120, LEVELS = 13;
   const EPS_MAX = 0.3, EPS_MIN = 0.008;
+  const SECONDS_PER_CYCLE = 16;
   // Grid graded towards 1 so the layers stay resolved.
   const s = Array.from({ length: N + 1 }, (_, i) => 1 - Math.pow(1 - i / N, 2.2));
   const X = new Float64Array(N + 1), u = new Float64Array((N + 1) * (N + 1));
@@ -87,7 +95,7 @@
   function show(t) { slider.value = Math.round(t * 1000); draw(epsOf(t)); }
   function frame(now) {
     if (!playing) { last = null; return; }
-    if (last !== null) phase += (now - last) / 16000;
+    if (last !== null) phase += (now - last) / (SECONDS_PER_CYCLE * 1000);
     last = now;
     show(0.5 - 0.5 * Math.cos(2 * Math.PI * phase));
     requestAnimationFrame(frame);

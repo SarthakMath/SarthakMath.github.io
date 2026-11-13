@@ -32,6 +32,9 @@ https://sarthakmath.github.io/CDR_visualizer/ and the two read as one site.
 
 ## Where things are
 
+A full illustrated guide, *Editing-your-website.pdf*, is in `Documents/ChatGPT/` (outside this repository, so it is not published). Every page and file also has comments explaining what to edit.
+
+
 | To change | Edit |
 | --- | --- |
 | Name, email, logo, LinkedIn, navigation, footer | `assets/js/site.js` (the `SITE` block at the top) |
@@ -40,6 +43,7 @@ https://sarthakmath.github.io/CDR_visualizer/ and the two read as one site.
 | Gallery photos | add files to `assets/img/gallery/`, list them in `assets/js/gallery-data.js` |
 | Home page figure | `assets/js/layers.js` |
 | Converge course | `converge/` (its own `index.html`, `style.css`, `app.js`; served at /converge/) |
+| From PDE to matrix | `fem/`: words in `index.html`, figures in `app.js`, mathematics in `fem1d.js`; served at /fem/ |
 
 ## Pictures to add
 
