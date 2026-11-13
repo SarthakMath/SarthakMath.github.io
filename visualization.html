@@ -3,12 +3,14 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- TAB TITLE AND SEARCH SNIPPET: <title> is the browser-tab text;
+       description and og: lines are what Google and link previews show. -->
   <title>Math visualization | Sarthak Sourav Dash</title>
-  <meta name="description" content="Interactive mathematics by Sarthak Sourav Dash: a browser-based finite element lab for convection–diffusion–reaction equations, and Converge, an interactive numerical analysis course.">
+  <meta name="description" content="Interactive mathematics by Sarthak Sourav Dash: a browser-based finite element lab for convection–diffusion–reaction equations, From PDE to matrix, an interactive introduction to finite elements, and Converge, a numerical analysis course.">
   <meta name="author" content="Sarthak Sourav Dash">
   <meta name="theme-color" content="#fcfaf5">
   <meta property="og:title" content="Math visualization | Sarthak Sourav Dash">
-  <meta property="og:description" content="Interactive mathematics by Sarthak Sourav Dash: a browser-based finite element lab for convection–diffusion–reaction equations, and Converge, an interactive numerical analysis course.">
+  <meta property="og:description" content="Interactive mathematics by Sarthak Sourav Dash: a browser-based finite element lab for convection–diffusion–reaction equations, From PDE to matrix, an interactive introduction to finite elements, and Converge, a numerical analysis course.">
   <meta property="og:type" content="website">
   <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -18,12 +20,26 @@
 <body data-page="visualization">
   <noscript><p class="wrap"><a href="index.html">Home</a> | <a href="research.html">Research</a> | <a href="experience.html">Experience</a> | <a href="visualization.html">Math visualization</a> | <a href="gallery.html">Gallery</a> | <a href="personal.html">Personal</a></p></noscript>
   <main class="wrap">
+    <!-- ===================================================================
+       MATH VISUALIZATION PAGE (visualization.html)
+       One section per group of tools ("Finite elements", "Teaching").
+       Each tool is an <article class="entry project"> with a screenshot,
+       text and buttons. Screenshots live in assets/img/.
+       To add a tool, copy a whole <article class="entry project"> ... </article>
+       block, change the link, image file, alt text, words and buttons.
+       =================================================================== -->
+
+    <!-- PAGE TITLE BLOCK: optional equation line, the big title, and one intro sentence. -->
     <header class="page-title">
       <p class="equation">∂<sub>t</sub>u − εΔu + b·∇u + cu = f</p>
       <h1>Math visualization</h1>
       <p class="lead">Interactive tools I build to see numerical methods at work. They run entirely in your browser, with nothing to install.</p>
     </header>
 
+    <!-- -------------------------------------------------------------------
+         FINITE ELEMENTS   (the italic label on the left is the <h2>)
+         Each tool is one <article class="entry project"> block: see the note at the top of the page.
+         ------------------------------------------------------------------- -->
     <section class="section wide">
       <h2>Finite elements</h2>
       <div class="body">
@@ -52,9 +68,25 @@
       </div>
     </section>
 
+    <!-- -------------------------------------------------------------------
+         TEACHING   (the italic label on the left is the <h2>)
+         Each tool is one <article class="entry project"> block: see the note at the top of the page.
+         ------------------------------------------------------------------- -->
     <section class="section wide">
       <h2>Teaching</h2>
       <div class="body">
+        <article class="entry project">
+          <h3><a href="fem/">From PDE to matrix</a></h3>
+          <p class="meta">An interactive introduction to the finite element method, in six chapters.</p>
+          <a class="shot" href="fem/"><img src="assets/img/fem-assembly.webp" width="1600" height="1448" loading="lazy" alt="The assembly chapter of From PDE to matrix: a mesh of four elements with the third highlighted, its two-by-two element matrix, and the global matrix with the block being added shown in colour"></a>
+          <div class="text">
+            <p>How a differential equation becomes a linear system, starting from a heated rod: the weak form, hat functions, the matrix of a single element, assembly, boundary conditions and the solve. Every figure is live. You can drag the nodes, test the weak form with your own test function, and step through the assembly one element at a time.</p>
+            <p>It is written for a first reading, and each chapter closes with the precise statements for readers who know the theory.</p>
+            <ul class="links">
+              <li><a class="button solid" href="fem/">Start reading</a></li>
+            </ul>
+          </div>
+        </article>
         <article class="entry project">
           <h3><a href="converge/">Converge</a></h3>
           <p class="meta">An interactive first course in numerical analysis, in six chapters.</p>

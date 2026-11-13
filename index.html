@@ -3,6 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- TAB TITLE AND SEARCH SNIPPET: <title> is the browser-tab text;
+       description and og: lines are what Google and link previews show. -->
   <title>Sarthak Sourav Dash, mathematics at IIT Gandhinagar</title>
   <meta name="description" content="PhD student in mathematics at IIT Gandhinagar working on numerical analysis of partial differential equations and algebraic flux correction.">
   <meta name="author" content="Sarthak Sourav Dash">
@@ -18,6 +20,16 @@
 <body data-page="home">
   <noscript><p class="wrap"><a href="index.html">Home</a> | <a href="research.html">Research</a> | <a href="experience.html">Experience</a> | <a href="visualization.html">Math visualization</a> | <a href="gallery.html">Gallery</a> | <a href="personal.html">Personal</a></p></noscript>
   <main class="wrap">
+    <!-- ===================================================================
+       HOME PAGE (index.html)
+       Top:     your name, two intro paragraphs, two buttons, and the ε figure.
+                The figure itself is drawn by assets/js/layers.js.
+       Then:    "At present" (latest news) and "About" (portrait + short bio).
+       The top bar and footer are added by assets/js/site.js.
+       =================================================================== -->
+
+    <!-- INTRO: name, two paragraphs, buttons (left) and the ε figure (right).
+         Figure caption text is in the <figcaption> below. -->
     <section class="hero">
       <div>
         <h1>Sarthak Sourav Dash</h1>
@@ -39,6 +51,12 @@
       </figure>
     </section>
 
+    <!-- -------------------------------------------------------------------
+         AT PRESENT   (the italic label on the left is the <h2>)
+         To add an item, copy one <li> ... </li> line and change the words:
+           <li><span>Main text<small>Grey second line</small></span><span class="when">Date</span></li>
+         Newest first. Leave out <small>...</small> if there is no second line.
+         ------------------------------------------------------------------- -->
     <section class="section">
       <h2>At present</h2>
       <div class="body">
@@ -50,6 +68,10 @@
       </div>
     </section>
 
+    <!-- -------------------------------------------------------------------
+         ABOUT   (the italic label on the left is the <h2>)
+         The photo is assets/img/portrait.jpg. Text: edit the <p> paragraphs.
+         ------------------------------------------------------------------- -->
     <section class="section">
       <h2>About</h2>
       <div class="body about">
