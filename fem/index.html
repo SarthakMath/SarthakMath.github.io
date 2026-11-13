@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>From PDE to matrix | An interactive introduction to finite elements</title>
-  <meta name="description" content="How the finite element method turns a differential equation into a linear system: weak form, hat functions, element matrices and assembly, with figures you can drag and step through.">
+  <meta name="description" content="How the finite element method turns a differential equation into a linear system: weak form, hat functions, element matrices, assembly and sparsity, in one and two dimensions, with figures you can drag and step through.">
   <meta name="author" content="Sarthak Sourav Dash">
   <meta name="theme-color" content="#fcfaf5">
   <link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
@@ -16,8 +16,9 @@
   <!-- ===================================================================
        FROM PDE TO MATRIX (fem/index.html)
        All the words are in this file, chapter by chapter.
-       The live figures are drawn by app.js into the <svg> and <div> tags
-       with id="..." below; the mathematics is computed in fem1d.js.
+       The live figures are drawn into the <svg> and <div> tags with
+       id="..." below: chapters 1-6 by app.js (mathematics in fem1d.js),
+       chapters 7-10 by app2d.js (mathematics in fem2d.js).
        To edit text: change the words here. Each chapter is one
        <section class="chapter">. "For the experienced reader" boxes are
        the <details class="deep"> blocks.
@@ -30,6 +31,7 @@
   <div class="shell" id="top">
     <!-- CHAPTER MENU (left on wide screens). One <li> per chapter; href matches the chapter's id. -->
     <nav class="toc" aria-label="Chapters">
+      <p class="part">One dimension</p>
       <ol>
         <li><a href="#problem">The problem</a></li>
         <li><a href="#weak">The weak form</a></li>
@@ -38,6 +40,13 @@
         <li><a href="#assembly">Assembly</a></li>
         <li><a href="#solve">Boundary conditions and solving</a></li>
       </ol>
+      <p class="part">Two dimensions</p>
+      <ol start="7" class="two">
+        <li><a href="#pyramids">Triangles and pyramids</a></li>
+        <li><a href="#triangle">One triangle</a></li>
+        <li><a href="#sparsity">Assembly and sparsity</a></li>
+        <li><a href="#plate">Solving on a plate</a></li>
+      </ol>
     </nav>
 
     <main>
@@ -45,7 +54,7 @@
       <section class="intro">
         <h1>From PDE to matrix</h1>
         <p class="lead">How the finite element method turns a differential equation into a linear system a computer can solve, one idea at a time.</p>
-        <p>Every figure on this page is live. Drag the handles, move the sliders and step through the assembly. Each chapter ends with a box for readers who already know the theory and want the precise statements.</p>
+        <p>Every figure on this page is live. Drag the handles, move the sliders and step through the assembly. Chapters 1 to 6 work on a rod, where every number fits on the screen. Chapters 7 to 10 repeat the same steps on a square plate. Each chapter ends with a box for readers who already know the theory and want the precise statements.</p>
       </section>
 
       <!-- ================= CHAPTER 1 ================= -->
@@ -239,10 +248,142 @@
         </details>
       </section>
 
+      <!-- ===================================================================
+           PART II — TWO DIMENSIONS (chapters 7 to 10)
+           Figures drawn by app2d.js, mathematics in fem2d.js.
+           =================================================================== -->
+      <section class="parthead" id="part2">
+        <h2>Two dimensions</h2>
+        <p>Replace the rod by a thin square plate, heated across its surface, with all four edges held in ice. The temperature <span class="math">u(x, y)</span> now satisfies</p>
+        <p class="eq">−(u<sub>xx</sub> + u<sub>yy</sub>) = f &nbsp;inside the square, &nbsp;&nbsp; u = 0 on its edges.</p>
+        <p>The left side is written <span class="math">−Δu</span>; this is the Poisson equation. Multiplying by a test function and integrating by parts works exactly as before, and gives the weak form</p>
+        <p class="eq">∬ ∇u · ∇v dx dy = ∬ f v dx dy &nbsp;&nbsp; for every v that vanishes on the edges.</p>
+        <p>The derivative <span class="math">u′</span> has become the gradient <span class="math">∇u</span>, the direction and steepness of the slope. Nothing else has changed, and the next four chapters follow the same path as the first six. The heating pattern you chose in chapter 1 carries over as its plate version.</p>
+      </section>
+
+      <!-- ================= CHAPTER 7 ================= -->
+      <section class="chapter" id="pyramids">
+        <h2><span class="n">7</span>Triangles and pyramids</h2>
+        <p>On the rod we cut an interval into shorter intervals. On the plate we cut the square into triangles. The corners of the triangles are the nodes, and we allow only functions that are flat on each triangle: a surface made of triangular facets, like a folded sheet of paper. Such a surface is fixed by its heights at the nodes.</p>
+        <p>The hat function of a node is now a pyramid: height 1 at that node, height 0 at every other node, flat on each triangle. It is non-zero only on the triangles that touch its node. As before, every faceted surface is a sum of pyramids, each scaled by the height at its node.</p>
+
+        <div class="lab">
+          <div class="controls">
+            <div class="seg" id="pyrSeg" role="group" aria-label="What to show"></div>
+            <label class="slider">Cells per side <input type="range" id="pyrN" min="2" max="6" step="1"><output id="pyrNOut"></output></label>
+          </div>
+          <svg id="figPyramid" role="img" aria-label="The triangulated square seen from the side, with either one pyramid-shaped hat function or the full faceted surface raised above it."></svg>
+          <p class="readout" id="outPyramid"></p>
+        </div>
+
+        <p>Select any node to see its pyramid. A node in the middle is shared by six triangles, so its pyramid has six faces. Then switch to “All pyramids added” to see the surface you get by scaling each pyramid to the exact temperature at its node. Use more cells and the facets follow the true shape more closely.</p>
+
+        <details class="deep">
+          <summary>For the experienced reader: the P1 space on a triangulation</summary>
+          <p>On a conforming triangulation the pyramids are the nodal basis of the continuous piecewise linear space; restricted to a triangle, <span class="math">φ<sub>i</sub></span> is the barycentric coordinate <span class="math">λ<sub>i</sub></span>. The interior nodes give <span class="math">V<sub>h</sub> ⊂ H¹₀(Ω)</span>. Interpolation estimates of the form <span class="math">‖u − I<sub>h</sub>u‖ + h ‖∇(u − I<sub>h</sub>u)‖ ≤ C h² |u|<sub>H²</sub></span> hold with a constant that depends on the shape of the triangles through the smallest angle (or, more sharply, the largest), which is why mesh quality matters in two dimensions and had no counterpart on the rod.</p>
+        </details>
+      </section>
+
+      <!-- ================= CHAPTER 8 ================= -->
+      <section class="chapter" id="triangle">
+        <h2><span class="n">8</span>One triangle</h2>
+        <p>The system is again <span class="math">K U = F</span>, now with <span class="math">K<sub>ij</sub> = ∬ ∇φ<sub>i</sub> · ∇φ<sub>j</sub></span>, and again the integrals split into one small calculation per element. On a single triangle three pyramids are non-zero, one for each corner, so the element matrix is 3 × 3.</p>
+        <p>Each of the three is a tilted flat plane on the triangle, rising from 0 along the opposite side to 1 at its own corner. So its gradient is constant: it points straight from the opposite side towards the corner, and its length is 1 divided by the height of the triangle above that side. Each entry of the matrix is then simply</p>
+        <p class="eq">K<sub>ij</sub> = area × ∇φ<sub>i</sub> · ∇φ<sub>j</sub> .</p>
+
+        <div class="lab">
+          <div class="controls">
+            <span>Shape</span>
+            <button type="button" class="btn" id="triRight">Right-angled</button>
+            <button type="button" class="btn" id="triEqui">Equilateral</button>
+            <button type="button" class="btn" id="triObtuse">Obtuse</button>
+          </div>
+          <div class="split">
+            <svg id="figTriangle" class="draggable" role="img" aria-label="A triangle with draggable corners, its three angles, and the gradients of the selected hat functions drawn as arrows."></svg>
+            <div>
+              <p class="cap">Element matrix. Select an entry.</p>
+              <div class="mat mat3" id="matTri" role="group" aria-label="Element stiffness matrix of the triangle"></div>
+              <p class="explain" id="outTriangle"></p>
+            </div>
+          </div>
+          <p class="readout" id="outTriShape"></p>
+        </div>
+
+        <p>Drag the corners. An off-diagonal entry depends only on the angle opposite the side joining its two corners: it is negative while that angle is below 90°, exactly zero at 90°, and <em>positive</em> once the angle is obtuse. Scaling the whole triangle up or down changes nothing, because the area grows exactly as fast as the gradients shrink.</p>
+
+        <details class="deep">
+          <summary>For the experienced reader: the cotangent formula and the maximum principle</summary>
+          <p>With the affine map <span class="math">x = B x̂ + b</span> from the reference triangle, <span class="math">∇φ<sub>i</sub> = B⁻ᵀ ∇̂φ̂<sub>i</sub></span> and <span class="math">K<sub>e</sub> = |T| G Gᵀ</span>, where the rows of <span class="math">G</span> are the gradients. Elementary geometry gives <span class="math">K<sub>ij</sub> = −½ cot θ<sub>k</sub></span> for <span class="math">i ≠ j</span>, with <span class="math">θ<sub>k</sub></span> the angle opposite the edge, and <span class="math">K<sub>ii</sub> = ½ (cot θ<sub>j</sub> + cot θ<sub>k</sub>)</span>. The matrix is invariant under scaling, a feature of two dimensions.</p>
+          <p>After assembly an interior edge receives <span class="math">−½ (cot α + cot β)</span> from its two triangles, which is non-positive exactly when <span class="math">α + β ≤ π</span>, the Delaunay condition. Then <span class="math">K</span> is an M-matrix and the discrete maximum principle holds; on meshes with obtuse pairs it can fail even for the Laplacian. For convection-dominated problems no mesh condition rescues the Galerkin matrix, and the sign structure has to be enforced algebraically, which is what algebraic flux correction does.</p>
+        </details>
+      </section>
+
+      <!-- ================= CHAPTER 9 ================= -->
+      <section class="chapter" id="sparsity">
+        <h2><span class="n">9</span>Assembly and sparsity</h2>
+        <p>Assembly is the same loop as on the rod. Visit each triangle, compute its 3 × 3 matrix, and add the nine numbers into <span class="math">K</span> at the rows and columns of its three corners. The picture on the right shows which entries of <span class="math">K</span> have been touched; there are too many to print as numbers.</p>
+
+        <div class="lab">
+          <div class="controls">
+            <label class="slider">Cells per side <input type="range" id="spN" min="2" max="4" step="1"><output id="spNOut"></output></label>
+            <span>Numbering</span>
+            <div class="seg" id="spSeg" role="group" aria-label="Node numbering"></div>
+          </div>
+          <div class="controls steps">
+            <button type="button" class="btn" id="spBack">Back</button>
+            <button type="button" class="btn solid" id="spNext">Add next triangle</button>
+            <button type="button" class="btn" id="spPlay">Play</button>
+            <button type="button" class="btn" id="spAll">Add all</button>
+            <button type="button" class="btn" id="spReset">Start over</button>
+          </div>
+          <div class="pair">
+            <figure><svg id="figSpMesh" role="img" aria-label="The mesh with numbered nodes; the triangle being added is highlighted."></svg><figcaption>The mesh. Select a node to see its row.</figcaption></figure>
+            <figure><svg id="figSpMatrix" role="img" aria-label="The pattern of the global matrix: one small square for every entry that has been touched."></svg><figcaption>The matrix K. Filled: non-zero. Hollow: touched, but zero.</figcaption></figure>
+          </div>
+          <p class="readout" id="outSparsity" aria-live="polite"></p>
+        </div>
+
+        <p>When all triangles are in, select a node in the mesh. Its row of the matrix has entries only in the columns of its neighbours, the nodes it shares a triangle with. A node never has more than six neighbours here, however fine the mesh, so each row holds at most seven entries, and almost all of <span class="math">K</span> is zero.</p>
+        <p>Now switch the numbering to “Shuffled”. The mesh and the equations are the same, but the entries scatter across the matrix. Numbering row by row keeps them in a narrow band around the diagonal, which makes the system much cheaper to solve by elimination.</p>
+
+        <details class="deep">
+          <summary>For the experienced reader: storage, bandwidth and a familiar stencil</summary>
+          <p>Only the non-zeros are stored, usually in compressed sparse row format; for P1 elements on triangles there are about <span class="math">7N</span> of them, since an interior vertex has six neighbours on average. A banded Cholesky factorisation costs <span class="math">O(N b²)</span> for bandwidth <span class="math">b</span>, so numbering matters: reverse Cuthill–McKee reduces the bandwidth, and nested dissection brings the cost for a two-dimensional mesh down to <span class="math">O(N<sup>3/2</sup>)</span>.</p>
+          <p>The hollow squares are couplings across the diagonal of a cell. The angle opposite that edge is 90° in both triangles, so by the cotangent formula the contributions vanish. What remains in an interior row is 4 on the diagonal and −1 for the four axis neighbours: on this mesh the finite element matrix is exactly the five-point finite difference Laplacian, multiplied by <span class="math">h²</span>.</p>
+        </details>
+      </section>
+
+      <!-- ================= CHAPTER 10 ================= -->
+      <section class="chapter" id="plate">
+        <h2><span class="n">10</span>Solving on a plate</h2>
+        <p>The last step is unchanged too. The heights on the edges are known to be zero, so their rows and columns are removed, and the system that remains is solved for the interior heights. With <span class="math">n</span> cells per side there are <span class="math">(n − 1)²</span> unknowns.</p>
+
+        <div class="lab">
+          <div class="controls">
+            <label class="slider">Cells per side <input type="range" id="plN" min="2" max="32" step="1"><output id="plNOut"></output></label>
+          </div>
+          <div class="pair">
+            <figure><svg id="figPlateU" role="img" aria-label="Colour map of the computed temperature on the plate."></svg><figcaption id="capPlateU"></figcaption></figure>
+            <figure><svg id="figPlateE" role="img" aria-label="Colour map of the error, the difference between the exact and the computed temperature."></svg><figcaption id="capPlateE"></figcaption></figure>
+          </div>
+          <p class="readout" id="outPlate" aria-live="polite"></p>
+          <svg id="figConv" role="img" aria-label="Largest error against the number of cells per side, on logarithmic axes. The points fall on a line of slope minus two."></svg>
+        </div>
+
+        <p>Refine the mesh and watch the error map fade. In the plot underneath, both axes are logarithmic, so a power law shows as a straight line. The points follow the dashed line of slope 2: halving the size of the triangles divides the error by about 4, the same rate as on the rod.</p>
+        <p>One thing is different. On the rod the computed heights were exact at the nodes. On the plate they are not: the error map is not zero at the nodes, only small everywhere.</p>
+
+        <details class="deep">
+          <summary>For the experienced reader: error estimates and solvers</summary>
+          <p>Céa’s lemma gives <span class="math">‖∇(u − u<sub>h</sub>)‖ ≤ C h |u|<sub>H²</sub></span>, and the Aubin–Nitsche argument gives <span class="math">‖u − u<sub>h</sub>‖ ≤ C h² |u|<sub>H²</sub></span> when the domain is convex, so that the dual problem is <span class="math">H²</span>-regular. In the maximum norm, plotted here, the rate is <span class="math">h² |log h|</span>. Nodal exactness is lost because the Green’s function has a logarithmic singularity and is no longer in <span class="math">V<sub>h</sub></span>.</p>
+          <p>The system here is solved by the conjugate gradient method. The condition number of <span class="math">K</span> grows like <span class="math">h⁻²</span> in any dimension, so the number of iterations grows like <span class="math">h⁻¹</span>; the count is shown under the figure. Multigrid methods remove this growth and solve the system in work proportional to the number of unknowns.</p>
+        </details>
+      </section>
+
       <!-- WHAT COMES NEXT -->
       <section class="chapter next" id="next">
         <h2>Where this goes next</h2>
-        <p>The same six steps carry over unchanged to two and three dimensions: intervals become triangles or tetrahedra, hats become pyramids, and the element matrix becomes 3 × 3 or 4 × 4. Chapters on triangles, sparsity patterns and convergence in two dimensions are planned.</p>
+        <p>The same steps carry over to three dimensions, with tetrahedra and 4 × 4 element matrices, and to other equations: only the element matrix changes. What does not carry over automatically is the good behaviour of the matrix. As soon as the equation has a strong convection term, the method on this page produces oscillations.</p>
         <ul>
           <li>See the method fail and get repaired on convection-dominated problems in the <a href="https://sarthakmath.github.io/CDR_visualizer/">CDR FEM FCT lab</a>.</li>
           <li>For the numerical methods used along the way (quadrature, linear systems, interpolation), try <a href="../converge/">Converge</a>.</li>
@@ -253,6 +394,8 @@
   </div>
 
   <script src="fem1d.js"></script>
+  <script src="fem2d.js"></script>
   <script src="app.js"></script>
+  <script src="app2d.js"></script>
 </body>
 </html>
