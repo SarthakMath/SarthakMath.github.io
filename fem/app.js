@@ -416,7 +416,10 @@
   // =====================================================================
   // Controls and start-up
   // =====================================================================
-  function drawAll() { drawProblem(); drawWeak(); drawHats(); drawElement(); drawAssembly(); drawSolve(); }
+  const hooks = [];   // app2d.js adds its own redraw here, so Part II follows the chosen heating pattern
+  function drawAll() { drawProblem(); drawWeak(); drawHats(); drawElement(); drawAssembly(); drawSolve(); hooks.forEach((fn) => fn()); }
+  // Shared with app2d.js
+  window.FEMUI = { S, C, $, el, text, fmt, sci, sub, clamp, start, frame, segmented, svgPoint, hooks };
 
   function wire() {
     const on = (id, type, fn) => $(id).addEventListener(type, fn);
