@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Why Sobolev spaces? | Five experiments</title>
+  <meta name="description" content="Why the finite element method needs Sobolev spaces, shown in five experiments you can run: the energy of a jump, a rod of two materials, a minimum that smooth functions cannot reach, a point load in one and two dimensions, and how smoothness sets the speed of convergence.">
+  <meta name="author" content="Sarthak Sourav Dash">
+  <meta name="theme-color" content="#fcfaf5">
+  <link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="../fem/style.css">
+</head>
+<body>
+  <!-- ===================================================================
+       WHY SOBOLEV SPACES? (sobolev/index.html)
+       All the words are in this file, chapter by chapter.
+       The live figures are drawn into the <svg> tags with id="..." below
+       by app.js; the mathematics behind them is in sob.js.
+       The look comes from ../fem/style.css, shared with From PDE to matrix.
+       To edit text: change the words here. Each chapter is one
+       <section class="chapter">. "For the experienced reader" boxes are
+       the <details class="deep"> blocks.
+       =================================================================== -->
+  <header class="top">
+    <a class="brand" href="#top">Why Sobolev spaces?</a>
+    <a class="home" href="../">Sarthak Sourav Dash</a>
+  </header>
+
+  <div class="shell" id="top">
+    <!-- CHAPTER MENU (left on wide screens). One <li> per chapter; href matches the chapter's id. -->
+    <nav class="toc" aria-label="Chapters">
+      <p class="part">Five experiments</p>
+      <ol>
+        <li><a href="#jump">Jumps and corners</a></li>
+        <li><a href="#materials">Two materials</a></li>
+        <li><a href="#minimum">The missing minimum</a></li>
+        <li><a href="#point">A point load</a></li>
+        <li><a href="#rate">Smoothness sets the speed</a></li>
+      </ol>
+    </nav>
+
+    <main>
+      <!-- INTRODUCTION -->
+      <section class="intro">
+        <h1>Why Sobolev spaces?</h1>
+        <p class="lead">Finite element theory is written in spaces called H¹ and H², not in the spaces of smooth functions from calculus. Five experiments show why the smooth spaces are not enough.</p>
+        <p>The finite element method replaces the equation <span class="math">−u″ = f</span> by its weak form, which involves only the <em>energy</em> <span class="math">∫(u′)² dx</span>. So the natural question is: which functions have finite energy? The answer is a Sobolev space, called <span class="math">H¹</span>. Each experiment below breaks something that calculus takes for granted, and shows that the energy still makes sense. If the weak form is new to you, read <a href="../fem/">From PDE to matrix</a> first.</p>
+      </section>
+
+      <!-- ================= CHAPTER 1 ================= -->
+      <section class="chapter" id="jump">
+        <h2><span class="n">1</span>Jumps and corners</h2>
+        <p>A finite element solution is a chain of straight segments. It has corners at the nodes, so it has no second derivative there, and even its first derivative is undefined at each node. Why is that allowed? And if corners are allowed, why not go further and let the pieces be disconnected?</p>
+        <p>The energy answers both questions. Take a function with a jump, and spread the jump over a small width <span class="math">ε</span>. Then do the same with a corner.</p>
+
+        <div class="lab">
+          <div class="controls">
+            <div class="seg" id="jumpSeg" role="group" aria-label="Shape"></div>
+            <label class="slider">Width ε <input type="range" id="jumpEps" min="-3" max="-0.3" step="0.05"><output id="jumpEpsOut"></output></label>
+          </div>
+          <svg id="figJump" role="img" aria-label="Top: the function, with the smoothed region shaded. Bottom left: its slope. Bottom right: the energy against the width, on logarithmic axes."></svg>
+          <p class="readout" id="outJump"></p>
+        </div>
+
+        <p>To climb a height of 1 across a width <span class="math">ε</span> the slope must be <span class="math">1/ε</span>. Squared and integrated over the width, that gives an energy of <span class="math">1/ε</span>, which grows without bound as the jump sharpens. A corner is different: the slope stays between −2 and 2 however sharp the corner is, and the energy stays below 4.</p>
+        <p>So the energy draws the line exactly where finite elements need it. <strong>Corners cost a finite amount. Jumps cost infinitely much.</strong> Functions with finite energy may have corners but not jumps, and that is the reason the hat functions are continuous.</p>
+
+        <details class="deep">
+          <summary>For the experienced reader: the space H¹</summary>
+          <p><span class="math">H¹(0,1)</span> is the set of <span class="math">u ∈ L²(0,1)</span> that have a weak derivative <span class="math">u′ ∈ L²(0,1)</span>, meaning <span class="math">∫ u φ′ dx = −∫ u′ φ dx</span> for all <span class="math">φ ∈ C<sub>c</sub><sup>∞</sup>(0,1)</span>. In one dimension these are the absolutely continuous functions with square-integrable derivative, and <span class="math">|u(x) − u(y)| ≤ |x − y|<sup>1/2</sup> ‖u′‖</span>, so every element of <span class="math">H¹(0,1)</span> is Hölder continuous. The distributional derivative of a jump is a Dirac mass, which is not in <span class="math">L²</span>. The general statement, valid in any dimension: a function that is smooth on each element of a mesh belongs to <span class="math">H¹(Ω)</span> if and only if it is continuous across the element interfaces. This is the conformity condition for Lagrange elements.</p>
+        </details>
+      </section>
+
+      <!-- ================= CHAPTER 2 ================= -->
+      <section class="chapter" id="materials">
+        <h2><span class="n">2</span>Two materials</h2>
+        <p>Join two rods of different metals end to end, hold the outer ends in ice, and heat the whole length evenly. If <span class="math">k(x)</span> is the conductivity, the temperature satisfies</p>
+        <p class="eq">−(k u′)′ = 1 &nbsp;for 0 &lt; x &lt; 1, &nbsp;&nbsp; u(0) = u(1) = 0,</p>
+        <p>with <span class="math">k = 1</span> on the left half and a different constant on the right half. Nothing about this is exotic. Every real structure is made of more than one material.</p>
+
+        <div class="lab">
+          <div class="controls">
+            <label class="slider">Conductivity on the right <input type="range" id="matK" min="-1" max="1" step="0.05"><output id="matKOut"></output></label>
+            <label class="slider">Elements <input type="range" id="matN" min="2" max="12" step="1"><output id="matNOut"></output></label>
+          </div>
+          <svg id="figMat" role="img" aria-label="Top: the exact temperature and the finite element solution on a rod of two materials. Bottom: the slope, which jumps at the interface, and the heat flux, which does not."></svg>
+          <p class="readout" id="outMat"></p>
+        </div>
+
+        <p>Heat cannot pile up at the interface, so the flux <span class="math">k u′</span> must be the same on both sides. Since <span class="math">k</span> jumps, the slope <span class="math">u′</span> has to jump the other way. The temperature has a corner, and <span class="math">u″</span> does not exist at the interface. In the sense of calculus this problem <em>has no solution</em>: there is no twice-differentiable function that satisfies the equation.</p>
+        <p>The weak form does not notice. It asks only for</p>
+        <p class="eq">∫₀¹ k u′ v′ dx = ∫₀¹ v dx &nbsp;&nbsp; for every test function v,</p>
+        <p>and a function with a corner has a perfectly good energy, as chapter 1 showed. The finite element solution is computed with no special treatment of the interface, and the continuity of the flux comes out by itself. Try an odd number of elements: the interface then falls inside an element, and the method loses some accuracy but still works.</p>
+
+        <details class="deep">
+          <summary>For the experienced reader: transmission problems</summary>
+          <p>For <span class="math">k ∈ L<sup>∞</sup></span> with <span class="math">k ≥ k₀ &gt; 0</span> the form <span class="math">a(u, v) = ∫ k u′ v′ dx</span> is bounded and coercive on <span class="math">H¹₀(0,1)</span>, and Lax–Milgram gives a unique weak solution. The flux <span class="math">σ = k u′</span> satisfies <span class="math">σ′ = −f ∈ L²</span>, so <span class="math">σ ∈ H¹</span> is continuous: the transmission condition <span class="math">[k u′] = 0</span> is a natural condition, contained in the weak form and not imposed. The solution is in <span class="math">H²</span> on each side but not in <span class="math">H²(0,1)</span>. When the interface is a mesh node, the Green’s function is piecewise linear on the mesh, the finite element solution is exact at the nodes, and the energy error is <span class="math">O(h)</span>. When the interface cuts an element, the best approximation of the kink inside that element limits the energy error to <span class="math">O(h<sup>1/2</sup>)</span>. Meshes should follow material interfaces.</p>
+        </details>
+      </section>
+
+      <!-- ================= CHAPTER 3 ================= -->
+      <section class="chapter" id="minimum">
+        <h2><span class="n">3</span>The missing minimum</h2>
+        <p>The weak solution of <span class="math">−u″ = f</span> is also the function that makes the total energy</p>
+        <p class="eq">J(v) = ½ ∫₀¹ (v′)² dx − ∫₀¹ f v dx</p>
+        <p>as small as possible. This looks like a way to prove that a solution exists: the energy is bounded below, so take the function with the lowest energy. In the nineteenth century this argument was used freely, until Weierstrass pointed out the gap in it. A set of numbers that is bounded below has a greatest lower bound, but there need not be a function that attains it.</p>
+        <p>Here is the gap, made visible. Search for the minimum among the smoothest functions there are: sums of sine waves. Add one wave at a time and watch the energy.</p>
+
+        <div class="lab">
+          <div class="controls">
+            <div class="seg" id="ritzSeg" role="group" aria-label="Heating"></div>
+            <label class="slider">Sine waves <input type="range" id="ritzN" min="1" max="60" step="1"><output id="ritzNOut"></output></label>
+          </div>
+          <svg id="figRitz" role="img" aria-label="Top: the best smooth candidate and the function it approaches. Bottom: a derivative of the candidate, approaching a function with a jump."></svg>
+          <p class="readout" id="outRitz"></p>
+        </div>
+
+        <p>Each new wave lowers the energy a little more. The candidates are all infinitely differentiable, and they settle towards a definite shape. But the shape they settle towards is not smooth. With heating on the right half its second derivative jumps. With a point source it has a corner. The smooth functions have a lowest energy level that they approach and never reach, because <strong>the function that would attain it is not one of them.</strong></p>
+        <p>The cure is to enlarge the space until nothing is missing: include every function that a sequence of smooth functions can approach in energy. The result is the Sobolev space <span class="math">H¹₀</span>. In it, the minimum is always attained, and existence of a solution becomes a theorem.</p>
+
+        <details class="deep">
+          <summary>For the experienced reader: completeness</summary>
+          <p>The space <span class="math">C<sub>c</sub><sup>∞</sup>(0,1)</span> with the energy inner product <span class="math">(u, v) ↦ ∫ u′v′ dx</span> is not complete, and <span class="math">H¹₀(0,1)</span> is by definition its completion. Completeness is what the Riesz representation theorem and the Lax–Milgram lemma require, and it is the only property of <span class="math">H¹₀</span> they use. For the sine candidates <span class="math">u<sub>N</sub></span>, Galerkin orthogonality gives <span class="math">J(u<sub>N</sub>) − J(u) = ½ |u − u<sub>N</sub>|²<sub>H¹</sub></span>. The gap decays like <span class="math">N<sup>−3</sup></span> for the step heating, where <span class="math">u ∈ H²</span>, and only like <span class="math">N<sup>−1</sup></span> for the point source, where <span class="math">u ∈ H<sup>3/2−ε</sup></span>. The point source is admissible in one dimension because <span class="math">δ ∈ H<sup>−1</sup>(0,1)</span>; chapter 4 shows that this fails in two dimensions. Hilbert’s rescue of the Dirichlet principle in 1900 is, in modern terms, the direct method of the calculus of variations in a complete space.</p>
+        </details>
+      </section>
+
+      <!-- ================= CHAPTER 4 ================= -->
+      <section class="chapter" id="point">
+        <h2><span class="n">4</span>A point load</h2>
+        <p>Engineers like point loads: a force applied at one node, a heat source concentrated at one spot. On a rod this is harmless. On a plate it is not, and Sobolev theory predicts the difference before any computation.</p>
+        <p>Below, the same experiment is run twice. A unit heat source sits at the centre of a rod of length 2, and at the centre of a disc of radius 1. The boundary is held at zero. Refine the mesh and watch the temperature at the source.</p>
+
+        <div class="lab">
+          <div class="controls">
+            <label class="slider">Mesh size h <input type="range" id="pointN" min="1" max="10" step="1"><output id="pointNOut"></output></label>
+          </div>
+          <svg id="figPoint" role="img" aria-label="Top left: finite element solution on a rod with a point load, a tent of fixed height. Top right: the same on a disc, with a peak that grows as the mesh is refined. Bottom: the height at the load against the mesh size."></svg>
+          <p class="readout" id="outPoint"></p>
+        </div>
+
+        <p>On the rod, every mesh gives the same height, and it is the exact one. On the disc the computed height grows every time the mesh is refined, by the same amount for each halving of <span class="math">h</span>. It never settles. The computation is not wrong: the exact solution is <span class="math">−ln(r)/2π</span>, which is infinite at the source, and its energy is infinite too.</p>
+        <p>The reason is a fact about finite-energy functions. On a line, they are all continuous, so “the value at a point” is meaningful and a point load is a legitimate load. In the plane, a function can have finite energy and still be unbounded, so its value at a point means nothing, and a point load asks for something the theory cannot supply. <strong>A number read off at a point load in two or three dimensions depends on the mesh, and on nothing else.</strong></p>
+
+        <details class="deep">
+          <summary>For the experienced reader: Sobolev embedding</summary>
+          <p><span class="math">H<sup>s</sup>(Ω) ⊂ C(Ω̄)</span> holds for <span class="math">s &gt; d/2</span>, where <span class="math">d</span> is the dimension. For <span class="math">s = 1</span> this is true only when <span class="math">d = 1</span>. In two dimensions <span class="math">v(x) = ln ln(1/|x|)</span> lies in <span class="math">H¹</span> of the disc of radius ½ and is unbounded, so point evaluation is not a bounded functional on <span class="math">H¹</span>: <span class="math">δ ∉ H<sup>−1</sup>(Ω)</span> for <span class="math">d ≥ 2</span>, and Lax–Milgram does not apply. The Green’s function belongs to <span class="math">W<sup>1,p</sup></span> only for <span class="math">p &lt; d/(d − 1)</span>. For the Galerkin solution, <span class="math">a(u<sub>h</sub>, u<sub>h</sub>) = u<sub>h</sub>(0)</span>, so the peak and the energy are the same number, and both behave like <span class="math">(1/2π) ln(1/h)</span>. The figure uses radial linear elements on <span class="math">n</span> rings, which is the Galerkin method in the subspace of radial functions. On a triangular mesh the growth rate is the same. Away from the source the approximation still converges, which is why point loads remain usable in practice as long as nothing is read off at the load itself.</p>
+        </details>
+      </section>
+
+      <!-- ================= CHAPTER 5 ================= -->
+      <section class="chapter" id="rate">
+        <h2><span class="n">5</span>Smoothness sets the speed</h2>
+        <p>Sobolev spaces also answer the practical question: how fast does the error fall when the mesh is refined? For linear elements the textbook answer is “proportional to <span class="math">h</span> in the energy norm”. That answer assumes the solution has two derivatives with finite energy. When it does not, the method slows down, and the theory says by exactly how much.</p>
+        <p>Take a solution that behaves like <span class="math">x<sup>α</sup></span> near the left end, with <span class="math">α</span> between ½ and 1. Its slope is infinite at <span class="math">x = 0</span>, but its energy is finite. Solutions of this kind are not artificial: they appear at every re-entrant corner of a domain and at every crack tip.</p>
+
+        <div class="lab">
+          <div class="controls">
+            <label class="slider">Exponent α <input type="range" id="rateA" min="0.55" max="0.9" step="0.01"><output id="rateAOut"></output></label>
+            <label class="slider">Elements <input type="range" id="rateN" min="2" max="6" step="1"><output id="rateNOut"></output></label>
+          </div>
+          <div class="controls">
+            <div class="seg" id="rateSeg" role="group" aria-label="Mesh"></div>
+          </div>
+          <svg id="figRate" role="img" aria-label="Top: the singular solution and its finite element approximation, with the mesh nodes marked. Bottom: the relative error against the number of elements on logarithmic axes, for equal and for crowded elements."></svg>
+          <p class="readout" id="outRate"></p>
+        </div>
+
+        <p>With equal elements the error falls like <span class="math">h<sup>α − ½</sup></span>. The exponent is the number of derivatives beyond the first that still have finite energy, counted in fractions. Lower <span class="math">α</span> and the line in the lower plot flattens until refinement is almost useless. Nearly all of the error sits in the one element that touches <span class="math">x = 0</span>.</p>
+        <p>The same theory gives the repair. Crowd the elements towards the singular point, by the right amount, and the full rate returns with the same number of unknowns. This is what adaptive mesh refinement does automatically. <strong>Knowing which Sobolev space the solution lives in tells you how fast the method converges and where the mesh must be fine.</strong></p>
+
+        <details class="deep">
+          <summary>For the experienced reader: fractional regularity and graded meshes</summary>
+          <p>The function <span class="math">u = x<sup>α</sup>(1 − x)</span> belongs to <span class="math">H<sup>s</sup>(0,1)</span> exactly for <span class="math">s &lt; α + ½</span>. Céa’s lemma with the interpolation estimate <span class="math">|u − I<sub>h</sub>u|<sub>H¹</sub> ≤ C h<sup>s−1</sup> |u|<sub>H<sup>s</sup></sub></span>, <span class="math">1 ≤ s ≤ 2</span>, gives every rate below <span class="math">α − ½</span>, and the figure shows that the rate <span class="math">α − ½</span> is attained. In one dimension with constant coefficients the finite element solution coincides with the nodal interpolant, so the errors plotted are exact up to quadrature. The graded mesh has nodes <span class="math">x<sub>i</sub> = (i/n)<sup>μ</sup></span> with <span class="math">μ &gt; 1/(α − ½)</span>, which restores <span class="math">O(n<sup>−1</sup>)</span>. In two dimensions the counting shifts by half a derivative: at a corner of interior angle <span class="math">ω &gt; π</span> the solution of the Poisson problem behaves like <span class="math">r<sup>π/ω</sup> sin(πθ/ω)</span>, which is in <span class="math">H<sup>1+s</sup></span> for <span class="math">s &lt; π/ω</span>. On the L-shaped domain <span class="math">π/ω = 2/3</span>, so linear elements on quasi-uniform meshes converge like <span class="math">h<sup>2/3</sup></span> in the energy norm and <span class="math">h<sup>4/3</sup></span> in <span class="math">L²</span>, whatever the smoothness of the data.</p>
+        </details>
+      </section>
+
+      <!-- WHAT COMES NEXT -->
+      <section class="chapter next" id="next">
+        <h2>Where this goes next</h2>
+        <p>The five experiments make one point from five sides. The energy decides which functions are admissible, the admissible functions form a complete space, and the position of the solution in the scale of Sobolev spaces decides how well any mesh can approximate it.</p>
+        <ul>
+          <li>For the method itself, from the weak form to the linear system, read <a href="../fem/">From PDE to matrix</a>.</li>
+          <li>A solution in the right space can still be hard to compute. When convection dominates diffusion the Galerkin method oscillates, as the <a href="https://sarthakmath.github.io/CDR_visualizer/">CDR FEM FCT lab</a> shows.</li>
+          <li>For interpolation and quadrature, used throughout, try <a href="../converge/">Converge</a>.</li>
+        </ul>
+        <p class="by">Written and built by <a href="../">Sarthak Sourav Dash</a>.</p>
+      </section>
+    </main>
+  </div>
+
+  <script src="sob.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

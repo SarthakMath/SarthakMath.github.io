@@ -6,11 +6,11 @@
   <!-- TAB TITLE AND SEARCH SNIPPET: <title> is the browser-tab text;
        description and og: lines are what Google and link previews show. -->
   <title>Math visualization | Sarthak Sourav Dash</title>
-  <meta name="description" content="Interactive mathematics by Sarthak Sourav Dash: a browser-based finite element lab for convection–diffusion–reaction equations, From PDE to matrix, an interactive introduction to finite elements, and Converge, a numerical analysis course.">
+  <meta name="description" content="Interactive mathematics by Sarthak Sourav Dash: a browser-based finite element lab for convection–diffusion–reaction equations, From PDE to matrix, an interactive introduction to finite elements, Why Sobolev spaces?, five experiments on the function spaces behind it, and Converge, a numerical analysis course.">
   <meta name="author" content="Sarthak Sourav Dash">
   <meta name="theme-color" content="#fcfaf5">
   <meta property="og:title" content="Math visualization | Sarthak Sourav Dash">
-  <meta property="og:description" content="Interactive mathematics by Sarthak Sourav Dash: a browser-based finite element lab for convection–diffusion–reaction equations, From PDE to matrix, an interactive introduction to finite elements, and Converge, a numerical analysis course.">
+  <meta property="og:description" content="Interactive mathematics by Sarthak Sourav Dash: a browser-based finite element lab for convection–diffusion–reaction equations, From PDE to matrix, an interactive introduction to finite elements, Why Sobolev spaces?, five experiments on the function spaces behind it, and Converge, a numerical analysis course.">
   <meta property="og:type" content="website">
   <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -84,6 +84,18 @@
             <p>It is written for a first reading, and each chapter closes with the precise statements for readers who know the theory.</p>
             <ul class="links">
               <li><a class="button solid" href="fem/">Start reading</a></li>
+            </ul>
+          </div>
+        </article>
+        <article class="entry project">
+          <h3><a href="sobolev/">Why Sobolev spaces?</a></h3>
+          <p class="meta">Five experiments on the function spaces behind the finite element method.</p>
+          <a class="shot" href="sobolev/"><img src="assets/img/sobolev-point-load.webp" width="1600" height="1306" loading="lazy" alt="The point load experiment of Why Sobolev spaces?: on a rod the finite element solution is a tent of height 0.5 on every mesh, while on a disc the peak at the load grows steadily as the mesh size goes from one half to one over 1024"></a>
+          <div class="text">
+            <p>Finite element theory is written in the spaces H¹ and H², and a first course rarely says why. Each experiment here breaks something calculus takes for granted. A jump costs infinite energy while a corner does not. A rod of two materials has no second derivative and still has a solution. The smoothest functions approach a lowest energy and never reach it. On a singular solution, mesh refinement slows almost to a halt until the elements are crowded towards the singular point.</p>
+            <p>The picture shows a point load. On a rod, every mesh gives the same answer. On a disc, the computed value at the load grows each time the mesh is refined and never settles, exactly as Sobolev’s embedding theorem predicts.</p>
+            <ul class="links">
+              <li><a class="button solid" href="sobolev/">Run the experiments</a></li>
             </ul>
           </div>
         </article>
