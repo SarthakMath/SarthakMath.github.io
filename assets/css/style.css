@@ -96,6 +96,7 @@ em, i, .math { font-style: italic; }
 .plain li:last-child { border-bottom: 0; }
 .plain .when { color: var(--text-soft); font-size: 0.9rem; white-space: nowrap; text-align: right; font-feature-settings: 'lnum' 1; }
 .plain small { display: block; color: var(--text-soft); font-size: 0.9rem; }
+.sublist { margin: 1.8rem 0 0.6rem; font-style: italic; color: var(--text-soft); }   /* small heading inside a section, e.g. on the Resources page */
 
 /* ---- 6. BUTTONS: .button is outlined, .button.solid is filled --------- */
 .links { display: flex; flex-wrap: wrap; gap: 0.4rem 1.5rem; margin: 1.6rem 0 0; padding: 0; list-style: none; }

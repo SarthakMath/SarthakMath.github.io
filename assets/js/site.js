@@ -27,6 +27,7 @@ const SITE = {
     ['research', 'Research', 'research.html'],
     ['experience', 'Experience', 'experience.html'],
     ['visualization', 'Math visualization', 'visualization.html'],
+    ['resources', 'Resources', 'resources.html'],
     ['gallery', 'Gallery', 'gallery.html'],
     ['personal', 'Personal', 'personal.html'],
   ],
