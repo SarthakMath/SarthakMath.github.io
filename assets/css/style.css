@@ -162,6 +162,7 @@ dialog.lightbox button { background: none; border: 0; color: var(--accent); font
 .site-footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem 2rem; padding-top: 1.6rem; padding-bottom: 2.4rem; }
 .site-footer a { color: var(--text-soft); }
 .site-footer a:hover { color: var(--text); }
+.site-footer .rights { flex-basis: 100%; font-size: 0.85rem; }
 
 /* ---- 13. PHONES AND SMALL SCREENS --------------------------------------
    Below 860px: one column. Below 560px: smaller text, stacked lists.   */

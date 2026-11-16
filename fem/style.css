@@ -63,6 +63,7 @@ sub, sup { font-size: 0.72em; line-height: 0; }
 .next ul { padding-left: 1.2rem; }
 .next li { margin-bottom: 0.4rem; }
 .by { color: var(--text-soft); margin-top: 2rem; }
+.rights { color: var(--text-soft); font-size: 0.85rem; margin-top: 0.4rem; }
 details.deep { margin: 1.6rem 0 0.6rem; border: 1px solid var(--rule); background: #f6f2ea; }
 details.deep summary { cursor: pointer; padding: 0.65rem 1rem; color: var(--accent); font-size: 0.98rem; }
 details.deep p { margin: 0; padding: 0 1rem 0.9rem; font-size: 0.97rem; line-height: 1.6; }

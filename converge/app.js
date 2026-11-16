@@ -1439,6 +1439,7 @@ function render() {
         >, by Tobin A. Driscoll and Richard J. Braun, is a free undergraduate
         textbook.
       </p>
+      <p class="footer-reading">© 2026 Sarthak Sourav Dash. All rights reserved.</p>
     </div>
   </main>`;
   renderExperiment();

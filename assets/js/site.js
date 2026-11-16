@@ -23,6 +23,8 @@ const SITE = {
   // Paste your LinkedIn profile address here to show the link in the footer.
   linkedin: '',
   updated: 'November 2026',
+  // First year of the copyright notice; later years are added automatically.
+  since: 2026,
   pages: [
     ['research', 'Research', 'research.html'],
     ['experience', 'Experience', 'experience.html'],
@@ -51,9 +53,12 @@ const SITE = {
     `<a href="${SITE.github}">GitHub</a>`,
     SITE.linkedin ? `<a href="${SITE.linkedin}">LinkedIn</a>` : '',
   ].filter(Boolean).join(' &nbsp; ');
+  const year = new Date().getFullYear();
+  const years = year > SITE.since ? `${SITE.since}–${year}` : `${SITE.since}`;
+  const rights = `© ${years} ${SITE.name}. All rights reserved.`;
   const footer = document.createElement('footer');
   footer.className = 'site-footer';
-  footer.innerHTML = `<div class="wrap"><span>${SITE.name}, Department of Mathematics, IIT Gandhinagar</span><span>${more}</span><span>Updated ${SITE.updated}</span></div>`;
+  footer.innerHTML = `<div class="wrap"><span>${SITE.name}, Department of Mathematics, IIT Gandhinagar</span><span>${more}</span><span>Updated ${SITE.updated}</span><span class="rights">${rights}</span></div>`;
   document.body.append(footer);
 
   // An <img data-slot="..."> whose file is missing becomes a labelled placeholder.
